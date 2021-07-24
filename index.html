@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=`, initial-scale=1.0">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <title>kintoneアンケート</title>
+</head>
+<body>
+  <div id="app" class="container">
+    <div class="title">
+      <h1>kintoneアンケート</h1>
+      <div class="marker"></div>
+    </div>
+    <button v-if="startFlg!=true"class="startButton mb-20" @click="AnswerStart">アンケートに回答する</button>
+    <div v-if="startFlg==true && currentQuestionCounts != 5" class="quesion mb-20">
+      <p>{{ currentQuestion }}</p>
+      <label><input type="radio" v-on:keydown.a="onKeyDown" v-model="keyValue" value="はい">はい</label>
+      <label><input type="radio" v-on:keydown.b="onKeyDown" v-model="keyValue" value="いいえ">いいえ</label>
+      <label><input type="radio" v-on:keydown.c="onKeyDown" v-model="keyValue" value="その他">その他</label>
+      <p>{{ keyValue }}</p>
+      <div class="gaudeWrapper mb-20">
+        <div v-bind:style="styleObject" class="gauge"></div>
+      </div>
+      <div>{{ currentQuestionCounts }}/{{ QuestionCounts }}</div>
+    </div>
+    <div v-if="currentQuestionCounts == 5" class="finish">
+      <p>回答ありがとうございました🎉</p>
+      <div class="gaudeWrapper mb-20">
+        <div v-bind:style="styleObject" class="gauge"></div>
+      </div>
+      <div>{{ currentQuestionCounts }}/{{ QuestionCounts }}</div>
+    </div>
+  </div>
+
+  <script>
+    new Vue({
+      el: '#app',
+      data: {
+        startFlg: '',
+        keyValue: '',
+        currentQuestionCounts: 0,
+        QuestionCounts: 0,
+        currentQuestion: '',
+        questions: [
+          'kintoneを知っている',
+          'kintoneを使ったことがある',
+          'kintoneを使ってみたい',
+          'MakerFaireは初めての参加',
+          'ものづくりが好き'
+        ],
+        submitParams: []
+      },
+      methods: {
+        AnswerStart: function(){
+          this.startFlg = true
+        },
+        onKeyDown:function(key) {
+          this.keyValue = key
+        }
+      },
+      computed: {
+        styleObject: function(){
+            width = 20 * this.currentQuestionCounts + "%"
+          if(this.currentQuestionCounts == 5){
+            color = "#03a9f4"
+          } else {
+            color = "orange"
+          }
+          return{
+            'width': width,
+            'background-color': color,
+          }
+        }
+      },
+      mounted: function(){
+        this.currentQuestion = this.questions[0]
+        this.QuestionCounts = this.questions.length
+        document.body.addEventListener('keydown',
+          event => {
+            if (event.key) {
+              this.onKeyDown(event.key);
+            }
+          });
+      },
+      watch: {
+        keyValue: function(getKeyVal){
+          if (getKeyVal == 'a' || getKeyVal == 'b' || getKeyVal == 'c'){
+            var submitVal;
+            if (getKeyVal == 'a'){
+              submitVal = 'はい'
+            } else if (getKeyVal == 'b'){
+              submitVal = 'いいえ'
+            } else {
+              submitVal = 'その他'
+            }
+            this.currentQuestionCounts += 1
+            this.questions.splice(0,1)
+            this.currentQuestion = this.questions[0]
+            this.submitParams.push(submitVal)
+            this.keyValue = '' //同じキーを判別できないため,クリアしておく
+
+            if (this.submitParams.length == 5){
+              //kintoneにRESTでPOSTする
+              console.log('それゆけkintone')
+            }
+          }
+        }
+      }
+    })
+  </script>
+</body>
+</html>
