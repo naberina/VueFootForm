@@ -3,32 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <meta name="viewport" content="width=`, initial-scale=1.0">
+  <meta name="viewport" content="initial-scale=1.0">
   <link rel="stylesheet" href="style.css">
+  <link href="https://unpkg.com/nes.css@latest/css/nes.min.css" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
   <title>kintoneアンケート</title>
 </head>
 <body>
   <div id="app" class="container">
     <div class="title">
-      <h1>kintoneアンケート</h1>
-      <div class="marker"></div>
+      <h1 class="nes-text is-primary">足元のペダルを踏んでアンケートに回答してね！</h1>
     </div>
-    <button v-if="startFlg!=true"class="startButton mb-20" @click="AnswerStart">アンケートに回答する</button>
-    <div v-if="startFlg==true && currentQuestionCounts != 5" class="quesion mb-20">
+    <button v-if="startFlg!=true" type="button" class="nes-btn is-primary startButton mb-20" @click="AnswerStart">アンケートに回答する</button>
+    <div v-if="startFlg==true && currentQuestionCounts != TotalQuestionCounts " class="quesion mb-20">
       <p>{{ currentQuestion }}</p>
-      <label><input type="radio" v-on:keydown.a="onKeyDown" v-model="keyValue" value="はい">はい</label>
-      <label><input type="radio" v-on:keydown.b="onKeyDown" v-model="keyValue" value="いいえ">いいえ</label>
-      <label><input type="radio" v-on:keydown.c="onKeyDown" v-model="keyValue" value="その他">その他</label>
-      <p>{{ keyValue }}</p>
-      <div class="gaudeWrapper mb-20">
+      <label><input type="radio" class="nes-radio" v-on:keydown.a="onKeyDown" v-model="keyValue">左：{{ currentquestionKeyValueA }}</label>
+      <label><input type="radio" class="nes-radio" v-on:keydown.b="onKeyDown" v-model="keyValue">中央：{{ currentquestionKeyValueB }}</label>
+      <label><input type="radio" class="nes-radio" v-on:keydown.c="onKeyDown" v-model="keyValue">右：{{ currentquestionKeyValueC }}</label>
+      <div class="nes-progress gaudeWrapper mb-20">
         <div v-bind:style="styleObject" class="gauge"></div>
       </div>
       <div>{{ currentQuestionCounts }}/{{ QuestionCounts }}</div>
     </div>
-    <div v-if="currentQuestionCounts == 5" class="finish">
-      <p>回答ありがとうございました🎉</p>
-      <div class="gaudeWrapper mb-20">
+    <div v-if="currentQuestionCounts == TotalQuestionCounts" class="finish">
+      <p>回答ありがとうございました<i class="nes-icon is-medium star"></i></p>
+      <div class="nes-progress gaudeWrapper mb-20">
         <div v-bind:style="styleObject" class="gauge"></div>
       </div>
       <div>{{ currentQuestionCounts }}/{{ QuestionCounts }}</div>
@@ -43,15 +42,35 @@
         keyValue: '',
         currentQuestionCounts: 0,
         QuestionCounts: 0,
+        TotalQuestionCounts: 3, // 質問の総数
         currentQuestion: '',
         questions: [
-          'kintoneを知っている',
-          'kintoneを使ったことがある',
-          'kintoneを使ってみたい',
-          'MakerFaireは初めての参加',
-          'ものづくりが好き'
+          '餃子は',
+          '餃子といえば',
+          'どのくらいの頻度で餃子を食べますか',
         ],
-        submitParams: []
+        questionKeyValueA: [
+          '好き',
+          '焼き餃子',
+          '毎日'
+        ],
+        questionKeyValueB: [
+          '普通',
+          '水餃子',
+          '週に1回以上'
+        ],
+        questionKeyValueC: [
+          '苦手',
+          '揚げ餃子',
+          '月に1回以上'
+        ],
+        currentquestionKeyValueA: '',
+        currentquestionKeyValueB: '',
+        currentquestionKeyValueC: '',
+        submitVal: '',
+        submitParams: [],
+        width: '',
+        color: ''
       },
       methods: {
         AnswerStart: function(){
@@ -63,20 +82,25 @@
       },
       computed: {
         styleObject: function(){
-            width = 20 * this.currentQuestionCounts + "%"
-          if(this.currentQuestionCounts == 5){
-            color = "#03a9f4"
+          this.width = 33.3 * this.currentQuestionCounts + "%"
+          if(this.currentQuestionCounts == this.TotalQuestionCounts){
+            this.color = "#ffc107"
           } else {
-            color = "orange"
+            this.color = "#ffeb3b"
           }
           return{
-            'width': width,
-            'background-color': color,
+            'width': this.width,
+            'background-color': this.color,
           }
         }
       },
+      // 最初に読み込まれるため、初期値を設定しておく
       mounted: function(){
+        console.log(this.currentQuestionCounts)
         this.currentQuestion = this.questions[0]
+        this.currentquestionKeyValueA = this.questionKeyValueA[0]
+        this.currentquestionKeyValueB = this.questionKeyValueB[0]
+        this.currentquestionKeyValueC = this.questionKeyValueC[0]
         this.QuestionCounts = this.questions.length
         document.body.addEventListener('keydown',
           event => {
@@ -85,26 +109,54 @@
             }
           });
       },
+
+      // 更新イベントを受け取って処理する
       watch: {
         keyValue: function(getKeyVal){
+          if (getKeyVal == 'Enter') this.startFlg = true;
+          if (this.currentQuestionCounts > 3 || getKeyVal == 'Shift') location.reload();
+
           if (getKeyVal == 'a' || getKeyVal == 'b' || getKeyVal == 'c'){
-            var submitVal;
             if (getKeyVal == 'a'){
-              submitVal = 'はい'
+              this.submitVal = this.questionKeyValueA[this.currentQuestionCounts]
             } else if (getKeyVal == 'b'){
-              submitVal = 'いいえ'
+              this.submitVal = this.questionKeyValueB[this.currentQuestionCounts]
             } else {
-              submitVal = 'その他'
+              this.submitVal = this.questionKeyValueC[this.currentQuestionCounts]
             }
             this.currentQuestionCounts += 1
             this.questions.splice(0,1)
             this.currentQuestion = this.questions[0]
-            this.submitParams.push(submitVal)
+            this.currentquestionKeyValueA = this.questionKeyValueA[this.currentQuestionCounts] //表示する選択肢を更新する
+            this.currentquestionKeyValueB = this.questionKeyValueB[this.currentQuestionCounts]
+            this.currentquestionKeyValueC = this.questionKeyValueC[this.currentQuestionCounts]
+            this.submitParams.push(this.submitVal) // 回答結果をkintoneにPOSTするため配列に入れておく
             this.keyValue = '' //同じキーを判別できないため,クリアしておく
 
-            if (this.submitParams.length == 5){
+            if (this.submitParams.length == this.TotalQuestionCounts){
               //kintoneにRESTでPOSTする
-              console.log('それゆけkintone')
+              var body = {
+                'app': kintone.app.getId(),
+                'record': {
+                  '餃子は': {
+                    'value': this.submitParams[0]
+                  },
+                  '餃子といえば': {
+                    'value': this.submitParams[1]
+                  },
+                  'どのくらいの頻度で餃子を食べますか': {
+                    'value': this.submitParams[2]
+                  }
+                }
+              }
+
+              kintone.api(kintone.api.url('/k/v1/record.json', true), 'POST', body, (resp) => {
+                // success
+                console.log(resp);
+              }, function(error) {
+                // error
+                console.log(error);
+              });
             }
           }
         }
@@ -113,3 +165,4 @@
   </script>
 </body>
 </html>
+
