@@ -1,6 +1,14 @@
 # VueFootForm
+## 使用技術
+- [Vue.js](https://github.com/vuejs/vue)
+- [NES.css](https://nostalgic-css.github.io/NES.css/)
 
-## Usage
-<img width="300" alt="スクリーンショット_2021_07_24_15_02" src="https://user-images.githubusercontent.com/24198251/126859236-ecddd239-712e-4206-b325-d08d7b210846.png">
-キー操作のみでアンケート回答
-<img width="300" alt="スクリーンショット 2021-07-24 15 08 11" src="https://user-images.githubusercontent.com/24198251/126859266-85ecd614-ef39-4853-b581-6cb033ad3f0f.png">
+
+## 構成
+<img src="https://qiita-image-store.s3.ap-northeast-1.amazonaws.com/0/168550/92e33a04-36e7-e91c-4238-70a7e1d003d8.png" width="50%">
+
+## 完成形
+<img src="https://media.giphy.com/media/BjsgZOmKoNpGZfKByl/giphy.gif" width="50%">
+
+## 詳細
+https://qiita.com/naberina/items/f7570e016ae118844fe8
