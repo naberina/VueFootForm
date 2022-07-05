@@ -7,8 +7,8 @@
 
 body {
   font-size: 32px;
-  /* background-image: url("https://cdn.pixabay.com/photo/2018/08/13/03/00/lego-3602218_1280.jpg"); */
-  background-image: url("/Users/r001931/Downloads/lego_kintone_1.png");
+  /* ★TODO: ↓画像URL変更する */
+  background-image: url("https://cdn.pixabay.com/photo/2018/08/13/03/00/lego-3602218_1280.jpg");
   background-size: cover;
   background-repeat: no-repeat;
   color: #fff;
